@@ -1,8 +1,7 @@
 package fastestFifty;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FastestFiftyUsingStreams {
@@ -10,7 +9,7 @@ public class FastestFiftyUsingStreams {
     public static int sum;
 
     public static void calculateFifty(List<Integer> runs) {
-        String result = IntStream.rangeClosed(9, runs.size())
+        Map<String, Integer> result = IntStream.rangeClosed(9, runs.size())
                 .mapToObj(numberOfBalls -> {
                     sum = IntStream.range(0, numberOfBalls)
                             .map(runs::get)
@@ -19,19 +18,17 @@ public class FastestFiftyUsingStreams {
                     return IntStream.range(numberOfBalls, runs.size())
                             .mapToObj(i -> {
                                 if (sum >= 50) {
-                                    return "Score is " + sum + " in " + numberOfBalls + "\nIt is scored between ball " +
-                                            (i - numberOfBalls) + " and " + i;
-                                } else {
-                                    sum = sum + runs.get(i) - runs.get(i - numberOfBalls);
-                                    return sum + " + " + runs.get(i) + " - " + runs.get(i - numberOfBalls) + " = " + sum;
+                                    return Map.of("Sum", sum, "NumberOfBalls", numberOfBalls, "IndexStart", i - numberOfBalls, "IndexEnd", numberOfBalls);
                                 }
+                                sum = sum + runs.get(i) - runs.get(i - numberOfBalls);
+                                return null;
                             })
-                            .filter(str -> str.startsWith("Score"))
-                            .findFirst();
-                })
-                .filter(Optional::isPresent)
-                .map(Optional::get).findFirst().orElse("not found");
-        System.out.println(result);
+                            .filter(Objects::nonNull).findFirst().orElse(null);
+                }).filter(Objects::nonNull).findFirst().orElse(null);
+        if (result != null) {
+            System.out.println("Sum is " + result.get("Sum") + " in " + result.get("NumberOfBalls") + "\n" +
+                    "It is scored between ball " + result.get("IndexStart") + " and " + result.get("IndexEnd"));
+        }
     }
 
 
